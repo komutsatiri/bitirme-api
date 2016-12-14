@@ -1,0 +1,14 @@
+db:
+  image: mongo
+  ports:
+   - 27018:27017
+dbseed:
+  build: ./mongodb
+  links:
+    - db:db
+app:
+  build: ./api
+  links:
+   - db:db
+  ports:
+  - 5001:5001
