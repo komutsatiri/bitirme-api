@@ -1,14 +1,31 @@
-db:
-  image: mongo
-  ports:
-   - 27018:27017
-dbseed:
-  build: ./mongodb
-  links:
-    - db:db
-app:
-  build: ./api
-  links:
-   - db:db
-  ports:
-  - 5001:5001
+version: '2'
+
+services:
+  db:
+    image: mongo:latest
+    #build: ./mongodb
+    #ports:
+    # - 27018:27017
+    networks:
+      mongo_net:
+        ipv4_address: 172.16.0.2
+  dbseed:
+    build: ./mongodb-seed
+    networks:
+      mongo_net:
+        ipv4_address: 172.16.0.3
+  app:
+    build: ./api
+    ports:
+    - 5001:5001
+    networks:
+      mongo_net:
+        ipv4_address: 172.16.0.4
+
+networks:
+  mongo_net:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 172.16.0.0/24
+        gateway: 172.16.0.1 
