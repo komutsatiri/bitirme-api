@@ -10,9 +10,10 @@ CORS(app)
 
 #mongodb_host = os.environ['DB_PORT_27017_TCP_ADDR'];
 mongodb_host = '172.16.0.2'
+mongodb_port = 27017
 #mongodb_host = 'localhost'
 
-client = MongoClient(mongodb_host,27017)
+client = MongoClient(mongodb_host,mongodb_port)
 collection = client.conflict_db.events
 
 @app.route('/', methods=['GET'])

@@ -1,6 +1,7 @@
 FROM python:2.7
-ADD . /api
+RUN mkdir /api
 WORKDIR /api
+COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
-EXPOSE 5001
-CMD python api.py
+COPY api.py api.py
+
