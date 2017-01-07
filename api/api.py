@@ -8,17 +8,16 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-#mongodb_host = os.environ['DB_PORT_27017_TCP_ADDR'];
 mongodb_host = '172.16.0.2'
 mongodb_port = 27017
-#mongodb_host = 'localhost'
+
 
 client = MongoClient(mongodb_host,mongodb_port)
 collection = client.conflict_db.events
 
 @app.route('/', methods=['GET'])
 def hello_world():
-	output = 'Hi, give me some parameters, would you?'
+	output = 'Hi, give me some parameter, would you?'
 	return jsonify({'result' : output})
 
 
@@ -35,28 +34,30 @@ def get_markers(dyad_new_id,minimum,maximum):
 			output.append({'id' : q['id'], 'lat' : q['latitude'], 'lon' : q['longitude'],
 							'time' : q['date_start']})
 			counter = counter + 1
-		return jsonify({'result' : output, 'number of records': counter})
+		return jsonify({'result' : output, 'records': counter})
 	elif dyad_new_id is not None and minimum is not None and maximum is not None:
 		print 'dyad, death_range are given'
 		for q in collection.find({'dyad_new_id': dyad_new_id, 'best':{'$gte':minimum,'$lte':maximum}},{'_id':False}).sort([('date_start',1)]):
 			output.append({'id' : q['id'], 'lat' : q['latitude'], 'lon' : q['longitude'],
 							'time' : q['date_start']})
 			counter = counter + 1
-		return jsonify({'result' : output, 'number of records': counter})	
+		return jsonify({'result' : output, 'records': counter})	
 
 	if dyad_new_id is None and minimum is  None and maximum is  None:
 		print 'nothing given'
 		for q in collection.find({},{'_id':False}).sort([('date_start',1)]):
-			output.append({'id' : q['id'], 'lat' : q['latitude'], 'lon' : q['longitude'],
-							'time' : q['date_start']})
+			output.append({'id': q['id'], 'lat': q['latitude'], 'lon': q['longitude'],
+							'time': q['date_start']})
 			counter = counter + 1
-		return jsonify({'result' : output, 'number of records': counter})	
+		return jsonify({'result' : output, 'records': counter})	
 			
 @app.route('/details/<int:event_id>', methods=['GET'])
 def get_details(event_id):
 	q = collection.find_one({'id': event_id,},{'_id':False})
 	if q:
-		output = {'source_article': q['source_article'], 'dyad_name': q['dyad_name']}
+		output = {'source_article': q['source_article'], 'where_coordinates': q['where_coordinates'], 'side_a': q['side_a'],
+					'side_b': q['side_b'], 'deaths_a': q['deaths_a'], 'deaths_b': q['deaths_b'],
+					'deaths_civilians': q['deaths_civilians'], 'deaths_unknown': q['deaths_unknown']}
 	else:
 		print q
 		output = 'No results found'	
@@ -74,7 +75,7 @@ def get_dyads():
 			counter = counter + 1
 	except:
 		output = 'Things went terribly wrong'			
-	return jsonify({'result' : output, 'number of records': counter})
+	return jsonify({'result' : output, 'records': counter})
 
 @app.route('/death_range', methods=['GET'])
 def get_minmax():
